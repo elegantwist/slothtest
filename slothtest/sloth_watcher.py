@@ -23,11 +23,15 @@ class SlothWatcher:
 
     dump_counter = 0
 
+    to_dir = None
+
     def __init__(self):
 
         self.instance_id = str(os.environ.get('SLOTH_INSTANCE_ID', ""))
 
-    def start(self):
+    def start(self, to_dir=None):
+
+        self.to_dir = to_dir
 
         self.session_id = str(datetime.datetime.now().replace(microsecond=0).timestamp())[:-2]
 
@@ -35,7 +39,7 @@ class SlothWatcher:
         if snap_id == "":
             self.snapshot_id = self.session_id
 
-        self.sloth_connector = SlothConnector(self.session_id, self.snapshot_id)
+        self.sloth_connector = SlothConnector(self.session_id, self.snapshot_id, self.to_dir)
 
         self.sloth_state = SlothConfig.SlothState.WATCHING
         os.environ['SLOTH_STATE'] = SlothConfig.SlothState.WATCHING

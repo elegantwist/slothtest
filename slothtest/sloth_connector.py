@@ -14,10 +14,12 @@ class SlothConnector:
     engage_counter = 0
     xml_filename = ""
     xml_data = None
+    to_dir = None
 
-    ONLINE = None
 
-    def __init__(self, session_id="", snapshot_id=""):
+    def __init__(self, session_id="", snapshot_id="", to_dir=None):
+
+        self.to_dir = to_dir
 
         self.session_id = session_id
         if snapshot_id != "":
@@ -27,7 +29,11 @@ class SlothConnector:
 
     def init_xml(self):
 
-        self.xml_filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.snapshot_id+".xml")
+        if self.to_dir is None:
+            self.to_dir = os.getcwd()
+
+        self.xml_filename = os.path.join(self.to_dir, self.snapshot_id + ".xml")
+        #self.xml_filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.snapshot_id+".xml")
 
         self.xml_data = xml.Element("SlothWatch")
 

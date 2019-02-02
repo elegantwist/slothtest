@@ -1,7 +1,7 @@
 class SlothConfig:
 
     # an iteration amount after which the dump will happen in watchme decorator
-    DUMP_ITER_COUNT = 20
+    DUMP_ITER_COUNT = 100
 
     # a dictionary that defines the equality operator between two values of the particular type
     # used in pytest creation

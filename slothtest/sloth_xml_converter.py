@@ -190,6 +190,7 @@ class SlothTestConverter:
             if eq_expr is None:
                 eq_expr = "__eq__"
 
+            func_text += "    assert(type(run_result) == type(test_result))\n"
             func_text += "    assert(run_result." + eq_expr + "(test_result))\n"
 
         else:
@@ -204,6 +205,7 @@ class SlothTestConverter:
                 if eq_expr is None:
                     eq_expr = "__eq__"
 
+                func_text += "    assert(type(run_result["+str(i)+"]) == type(test_result["+str(i)+"]))\n"
                 func_text += "    assert(run_result["+str(i)+"]." + eq_expr + "(test_result["+str(i)+"]))\n"
 
         return func_text, var_text
@@ -346,11 +348,18 @@ class SlothTestConverter:
 
 if __name__ == '__main__':
 
+    import sys
+
     parser = argparse.ArgumentParser(description='Sloth Watcher Dump to pytest converter')
     parser.add_argument("filename", help="a Sloth's xml dump file (zip archive)")
+    parser.add_argument('-p', "--project_dir", help="The directory where the target project lives",
+                        default=os.getcwd())
     parser.add_argument('-d', "--to_dir", help="The directory for result files",
-                        default=os.path.dirname(os.path.abspath(__file__)))
+                        default=os.getcwd())
+
     args = parser.parse_args()
+
+    sys.path.append(os.path.abspath(args.project_dir))
 
     sltc = SlothTestConverter()
     sltc.parse_file_create_tests(args.filename, args.to_dir)

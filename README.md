@@ -9,7 +9,7 @@ The result is a collection of typical pytest unit tests that can be executed as 
 
 Suppose that we have a critical and sophisticated method that is a part of our ETL process (pd_table is a pandas table) :
 
-```
+```python
 def do_useful_stuff(pd_table=None, a=0, b=0):
 
     for i, row in pd_table.iterrows():
@@ -20,7 +20,7 @@ def do_useful_stuff(pd_table=None, a=0, b=0):
 
 Let’s show some run examples that we will implement via other method as the part of our ETL process:
 
-```
+```python
 def run():
 
     tables = {
@@ -83,7 +83,7 @@ Ok. Next, we need to be sure that this method will implement the business logic 
 
 2. The first step - we need to import a @watchme() decorator from a slothtest library. This decorator should be used on the target method need the Sloth to watch at. Let’s add it to our function:
 
-```
+```python
 from slothtest import watchme
 
 @watchme()
@@ -96,7 +96,7 @@ def do_useful_stuff(pd_table=None, a=0, b=0):
 
 3. We need to point a sloth watcher where it should start its watching process and where it should stop to watch. It can be an entry and exits points of an application, or logic start and stop track inside our app. For our tiny app it’s a run method, so our code will look like:
 
-```
+```python
 if __name__ == '__main__':
     slothwatcher.start()
     run()
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 4. Now, let’s run our app as usual, and let the Sloth to watch our process run. After a run, in a folder with our example, a new zip-file appears with a filename in digits (it’s a timestamp) and a dump of our runs inside this zip file
 The zip-dump creates after a sloth is stopped, or it recorded a certain amount of runs for all the methods it watched. An amount of runs we can set via SlothConfig class
 
-```
+```python
 from slothtest import SlothConfig
 SlothConfig.DUMP_ITER_COUNT = 200
 
@@ -125,7 +125,7 @@ where -p is the key to a directory where we will put a path to our project, and 
 The first one is a basic pytest collection for each run of our watched function:
 
 
-```
+```python
 import sloth_test_parval_1549134821 as sl 
 
 def test_do_useful_stuff_1(): 
@@ -159,7 +159,7 @@ def test_do_useful_stuff_2():
 
 And the second one is the serialized (or raw values if they are a primitive type) income and outcome values for each run of the method (4 cases):
 
-```
+```python
 import codecs
 import io
 import joblib

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="slothtest",
-    version="0.0.3",
+    version="0.0.4",
     author="Paul Kovtun",
     author_email="trademet@gmail.com",
     description="Sloth Test: An Automatic Unit Test Generator",

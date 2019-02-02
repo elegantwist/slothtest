@@ -69,7 +69,7 @@ class SlothWatcher:
 
     def watch(self, fn, in_args, in_kwargs, res, additional_info=""):
 
-        sloth_log.info("Start watching: " + str(fn))
+        sloth_log.debug("Start watching: " + str(fn))
 
         try:
 
@@ -79,7 +79,7 @@ class SlothWatcher:
 
             res_dict = self.watch_function_result(res, additional_info)
 
-            sloth_log.info("End watching: " + str(fn))
+            sloth_log.debug("End watching: " + str(fn))
 
             self.data_watch_dump.append({
                 'function': func_dict,
@@ -87,7 +87,7 @@ class SlothWatcher:
                 'results': res_dict
             })
 
-            sloth_log.info("Data dumped for: " + str(fn))
+            sloth_log.debug("Data dumped for: " + str(fn))
 
             self.dump_counter += 1
 
@@ -111,10 +111,10 @@ class SlothWatcher:
                         sep = i
                         break
 
-                return longer_dir[-sep + 1:]
+                return longer_dir[-(len(longer_dir)-sep):]
 
-            this_dir = os.path.dirname(os.path.realpath(__file__))
-            remote_dir = inspect.getfile(fn)[:-3]
+            this_dir = os.getcwd()
+            remote_dir = os.path.normpath(inspect.getfile(fn)[:-3])
 
             remote_dir_list = remote_dir.split(os.path.sep)
             this_dir_list = this_dir.split(os.path.sep)

@@ -1,3 +1,7 @@
+.. |Travis| image:: https://travis-ci.org/elegantwist/slothtest.svg?branch=master
+   :target: https://travis-ci.org/elegantwist/slothtest
+   :alt: Travis build status
+   
 # Description
 
 Sloth Test is a Python library that automatically create unit tests based on previous real-life cases to prevent regression bugs.

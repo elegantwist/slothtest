@@ -24,4 +24,3 @@ class SlothConfig:
         NoErrors = "0"
         Warning = "1"
         Errors = "2"
-

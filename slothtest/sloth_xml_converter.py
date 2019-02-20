@@ -363,3 +363,4 @@ if __name__ == '__main__':
 
     sltc = SlothTestConverter()
     sltc.parse_file_create_tests(args.filename, args.to_dir)
+

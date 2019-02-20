@@ -262,5 +262,3 @@ class SlothWatcher:
             'par_simple': str(kwargs.get('par_simple', "")),
             'additional_info': kwargs.get('additional_info', ""),
         }
-
-

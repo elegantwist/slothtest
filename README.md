@@ -1,3 +1,5 @@
+###### Description
+
 Sloth Test is a Python library that automatically create unit tests based on previous real-life cases to prevent regression bugs.
 1. You will connect the Sloth Test library to your project and run the project for execution the typical routine. 
 2. The Sloth collect the internal states of the classes, methods and functions you use in your project and you pointed the Sloth to watch at. It will record all possible incomes and outcomes of each method for each run
@@ -6,6 +8,17 @@ Sloth Test is a Python library that automatically create unit tests based on pre
 The result is a collection of typical pytest unit tests that can be executed as a part of testing routine.  
 5. For each modification of this method you can run these created test cases to check if the method doesn’t get new bugs and implements the business logic it supposed to have.
 ------------------------------------------------------------------
+
+###### Installing
+
+You can use pip to install slothtest:
+
+```pip install slothtest```
+
+from any directory
+
+###### Usage
+
 
 Suppose that we have a critical and sophisticated method that is a part of our ETL process (pd_table is a pandas table) :
 
@@ -77,11 +90,7 @@ Table table4:
 
 Ok. Next, we need to be sure that this method will implement the business logic it supposed to implement. To do that, we need to write manually a bunch of pytests for this method for various incomes and outcomes (perhaps 100+ tests for different variants of tables). Or use a Sloth Test library to do it for us automatically.
 
-1. Install Sloth Test:
-
-```pip install slothtest -U```
-
-2. The first step - we need to import a @watchme() decorator from a slothtest library. This decorator should be used on the target method need the Sloth to watch at. Let’s add it to our function:
+1. The first step - we need to import a @watchme() decorator from a slothtest library. This decorator should be used on the target method need the Sloth to watch at. Let’s add it to our function:
 
 ```python
 from slothtest import watchme
@@ -94,7 +103,7 @@ def do_useful_stuff(pd_table=None, a=0, b=0):
 
 ```
 
-3. We need to point a sloth watcher where it should start its watching process and where it should stop to watch. It can be an entry and exits points of an application, or logic start and stop track inside our app. For our tiny app it’s a run method, so our code will look like:
+2. We need to point a sloth watcher where it should start its watching process and where it should stop to watch. It can be an entry and exits points of an application, or logic start and stop track inside our app. For our tiny app it’s a run method, so our code will look like:
 
 ```python
 if __name__ == '__main__':
@@ -106,7 +115,7 @@ if __name__ == '__main__':
 
 .. and that’s all!
 
-4. Now, let’s run our app as usual, and let the Sloth to watch our process run. After a run, in a folder with our example, a new zip-file appears with a filename in digits (it’s a timestamp) and a dump of our runs inside this zip file
+3. Now, let’s run our app as usual, and let the Sloth to watch our process run. After a run, in a folder with our example, a new zip-file appears with a filename in digits (it’s a timestamp) and a dump of our runs inside this zip file
 The zip-dump creates after a sloth is stopped, or it recorded a certain amount of runs for all the methods it watched. An amount of runs we can set via SlothConfig class
 
 ```python
@@ -115,11 +124,12 @@ SlothConfig.DUMP_ITER_COUNT = 200
 
 ```
 
-5. At this point, we have a dump file. Now, for further development purpose we need to get a typical pytest unit tests. We can create that from our dump file, using a sloth translator:
+4. At this point, we have a dump file. Now, for further development purpose we need to get a typical pytest unit tests. We can create that from our dump file, using a sloth translator:
 
 ```python -m slothtest.sloth_xml_converter -p o:\work\slothexample -d o:\work\slothexample 1549134821.zip```
 
 where -p is the key to a directory where we will put a path to our project, and  -d is the key to a directory where the result pytest files will be created
+
 5. The result of the conversion are two files: 
 1) test_sloth_1549134821.py and 2) sloth_test_parval_1549134821.py
 The first one is a basic pytest collection for each run of our watched function:

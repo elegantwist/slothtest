@@ -143,3 +143,4 @@ class SlothConnector:
 
             additional_info = xml.SubElement(reslt_xml, "additional_info")
             additional_info.text = res_dict['additional_info']
+

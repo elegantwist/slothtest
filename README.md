@@ -1,4 +1,4 @@
-###### Description
+# Description
 
 Sloth Test is a Python library that automatically create unit tests based on previous real-life cases to prevent regression bugs.
 1. You will connect the Sloth Test library to your project and run the project for execution the typical routine. 
@@ -9,7 +9,7 @@ The result is a collection of typical pytest unit tests that can be executed as 
 5. For each modification of this method you can run these created test cases to check if the method doesn’t get new bugs and implements the business logic it supposed to have.
 ------------------------------------------------------------------
 
-###### Installing
+# Installing
 
 You can use pip to install slothtest:
 
@@ -17,7 +17,7 @@ You can use pip to install slothtest:
 
 from any directory
 
-###### Usage
+# Usage
 
 
 Suppose that we have a critical and sophisticated method that is a part of our ETL process (pd_table is a pandas table) :

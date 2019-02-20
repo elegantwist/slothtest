@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/elegantwist/slothtest.svg?branch=master)](https://travis-ci.org/elegantwist/slothtest)
+[![Build Status](https://travis-ci.org/elegantwist/slothtest.svg?branch=master)](https://travis-ci.org/elegantwist/slothtest) [![PyPI version](https://badge.fury.io/py/slothtest.svg)](https://badge.fury.io/py/slothtest)
 
 # Description
 

@@ -5,6 +5,7 @@ import pickle
 import codecs
 import joblib
 import io
+import asyncio
 from . import SlothConnector, sloth_log
 from . import SlothConfig
 
@@ -51,14 +52,14 @@ class SlothWatcher:
 
         sloth_log.info("Stopped id: " + self.session_id)
 
-        zip_fn = self.sloth_connector.dump_data(self.data_watch_dump)
-
-        sloth_log.info("Snapshot dumped to: " + zip_fn)
-
         self.sloth_state = SlothConfig.SlothState.IDLE
         os.environ['SLOTH_STATE'] = str(SlothConfig.SlothState.IDLE)
         self.snapshot_id = ""
         os.environ['SLOTH_SNAPSHOT_ID'] = ""
+
+        zip_fn = self.sloth_connector.dump_data(self.data_watch_dump)
+
+        sloth_log.info("Snapshot dumped to: " + zip_fn)
 
     def dump(self):
 
@@ -67,17 +68,17 @@ class SlothWatcher:
 
         self.dump_counter = 0
 
-    def watch(self, fn, in_args, in_kwargs, res, additional_info=""):
+    async def watch(self, fn, in_args, in_kwargs, res, additional_info=""):
 
         sloth_log.debug("Start watching: " + str(fn))
 
         try:
 
-            func_dict = self.watch_function(fn, in_args)
+            func_dict = await self.watch_function(fn, in_args)
 
-            args_dict = self.watch_function_args(fn, in_args, in_kwargs)
+            args_dict = await self.watch_function_args(fn, in_args, in_kwargs)
 
-            res_dict = self.watch_function_result(res, additional_info)
+            res_dict = await self.watch_function_result(res, additional_info)
 
             sloth_log.debug("End watching: " + str(fn))
 
@@ -95,7 +96,7 @@ class SlothWatcher:
 
             sloth_log.error("Data was not dumped. Error: " + str(e))
 
-    def watch_function(self, fn, in_args):
+    async def watch_function(self, fn, in_args):
 
         def get_full_scope(fn):
             # build a full path to the method
@@ -170,7 +171,7 @@ class SlothWatcher:
 
         return dict_comm
 
-    def watch_function_args(self, fn=None, in_args=None, in_kwargs=None):
+    async def watch_function_args(self, fn=None, in_args=None, in_kwargs=None):
         # bound income real arguments with the all possible arguments of the method
         # and serialize this kwargs list
 
@@ -197,9 +198,11 @@ class SlothWatcher:
                                             par_state=str(SlothConfig.SlothValueState.INCOME),
                                             par_simple=d_simple, ))
 
+            await asyncio.sleep(1)
+
         return var_pack
 
-    def watch_function_result(self, res=None, additional_info=""):
+    async def watch_function_result(self, res=None, additional_info=""):
         # watch and save the result of the method
 
         var_pack = []
@@ -223,6 +226,8 @@ class SlothWatcher:
                                                 par_state=str(SlothConfig.SlothValueState.RESULT),
                                                 par_simple=d_simple, ))
                 i = i + 1
+
+                await asyncio.sleep(1)
         else:
 
             p_type_tmp = type(res)

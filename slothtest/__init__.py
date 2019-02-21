@@ -1,5 +1,6 @@
 import traceback
 import os
+import asyncio
 from copy import deepcopy
 from .sloth_log import sloth_log
 from .sloth_connector import SlothConnector
@@ -31,6 +32,9 @@ def watchme():
             if slothwatcher.sloth_state != SlothConfig.SlothState.WATCHING:
                 return fn(*args, **kwargs)
 
+            if slothwatcher.dump_counter >= SlothConfig.DUMP_ITER_COUNT:
+                slothwatcher.dump()
+
             in_args = deepcopy(args)
             in_kwargs = deepcopy(kwargs)
 
@@ -41,10 +45,8 @@ def watchme():
                 res = e
                 additional_info = traceback.format_exc()
 
-            slothwatcher.watch(fn, in_args, in_kwargs, res, additional_info)
-
-            if slothwatcher.dump_counter >= SlothConfig.DUMP_ITER_COUNT:
-                slothwatcher.dump()
+            # fire and forget
+            asyncio.ensure_future(slothwatcher.watch(fn, in_args, in_kwargs, res, additional_info))
 
             return res
 

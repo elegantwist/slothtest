@@ -16,7 +16,6 @@ class SlothConnector:
     xml_data = None
     to_dir = None
 
-
     def __init__(self, session_id="", snapshot_id="", to_dir=None):
 
         self.to_dir = to_dir
@@ -33,7 +32,6 @@ class SlothConnector:
             self.to_dir = os.getcwd()
 
         self.xml_filename = os.path.join(self.to_dir, self.snapshot_id + ".xml")
-        #self.xml_filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.snapshot_id+".xml")
 
         self.xml_data = xml.Element("SlothWatch")
 

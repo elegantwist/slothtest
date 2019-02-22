@@ -6,6 +6,7 @@ import codecs
 import joblib
 import io
 import asyncio
+from typing import List, Dict
 from . import SlothConnector, sloth_log
 from . import SlothConfig
 
@@ -16,6 +17,7 @@ class SlothWatcher:
 
     instance_id = ""
     snapshot_id = ""
+    session_id = ""
 
     service_online = False
     sloth_connector = None
@@ -30,7 +32,7 @@ class SlothWatcher:
 
         self.instance_id = str(os.environ.get('SLOTH_INSTANCE_ID', ""))
 
-    def start(self, to_dir=None):
+    def start(self, to_dir: str = None):
 
         self.to_dir = to_dir
 
@@ -68,7 +70,7 @@ class SlothWatcher:
 
         self.dump_counter = 0
 
-    async def watch(self, fn, in_args, in_kwargs, res, additional_info=""):
+    async def watch(self, fn, in_args: List = None, in_kwargs: Dict = None, res=None, additional_info: str = ""):
 
         sloth_log.debug("Start watching: " + str(fn))
 
@@ -96,12 +98,12 @@ class SlothWatcher:
 
             sloth_log.error("Data was not dumped. Error: " + str(e))
 
-    async def watch_function(self, fn, in_args):
+    async def watch_function(self, fn, in_args: List = None) -> Dict:
 
         def get_full_scope(fn):
             # build a full path to the method
 
-            def unique_path(shorter_dir=None, longer_dir=None):
+            def unique_path(shorter_dir: List = None, longer_dir: List = None) -> List:
 
                 sep = 0
                 for i in range(len(longer_dir)):
@@ -124,7 +126,7 @@ class SlothWatcher:
 
             return '.'.join(diff_dir)
 
-        def get_callers_stack(fn):
+        def get_callers_stack(fn) -> str:
             # get a human-readable stack of callers for the method
 
             stack = inspect.stack()
@@ -171,7 +173,7 @@ class SlothWatcher:
 
         return dict_comm
 
-    async def watch_function_args(self, fn=None, in_args=None, in_kwargs=None):
+    async def watch_function_args(self, fn=None, in_args: List = None, in_kwargs: Dict = None) -> List:
         # bound income real arguments with the all possible arguments of the method
         # and serialize this kwargs list
 
@@ -202,7 +204,7 @@ class SlothWatcher:
 
         return var_pack
 
-    async def watch_function_result(self, res=None, additional_info=""):
+    async def watch_function_result(self, res=None, additional_info: str = "") -> List:
         # watch and save the result of the method
 
         var_pack = []
@@ -248,7 +250,7 @@ class SlothWatcher:
 
         return var_pack
 
-    def dump_class_with_joblib(self, value):
+    def dump_class_with_joblib(self, value) -> str:
 
         outputStream = io.BytesIO()
         joblib.dump(value, outputStream)
@@ -257,7 +259,7 @@ class SlothWatcher:
 
         return d_val
 
-    def var_d_pack(self, **kwargs):
+    def var_d_pack(self, **kwargs: Dict) -> Dict:
 
         return {
             'par_type': kwargs.get('par_type', ""),

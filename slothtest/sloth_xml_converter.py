@@ -4,6 +4,8 @@ import codecs
 import argparse
 import os
 import zipfile
+from typing import Dict, List
+
 # it can be either called via the CLI as a standalone, or as a class
 try:
     from .sloth_config import SlothConfig
@@ -45,7 +47,7 @@ class SlothTestConverter:
 
         return ret
 
-    def create_text_of_test_module(self, func_data_dict=None):
+    def create_text_of_test_module(self, func_data_dict: Dict = None) -> (str, str):
         """
         Creating python code for test module, based on incoming dictionary with the description of the function and params
 
@@ -86,7 +88,7 @@ class SlothTestConverter:
 
         if not func_data_dict:
             sloth_log.error("Couldn't convert the pack. Data dict was not provided!")
-            return func_text
+            return func_text, var_text
 
         run_id = func_data_dict.get('run_id', "")
         scope = func_data_dict.get('scope', "")
@@ -210,7 +212,7 @@ class SlothTestConverter:
 
         return func_text, var_text
 
-    def get_dumped_parameters(self, par_val_arr=None):
+    def get_dumped_parameters(self, par_val_arr: List = None) -> List:
         """
 
         Collecting and parsing an array of income/outcome parameters to dict
@@ -239,7 +241,7 @@ class SlothTestConverter:
 
         return params
 
-    def parse_file_create_tests(self, filename=None, to_dir=None):
+    def parse_file_create_tests(self, filename: str = None, to_dir: str = None):
         """
         The Main function. Get an XML file (zip) of dumped functions and converts it to python unit-test code
 

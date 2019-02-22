@@ -1,6 +1,7 @@
 import os
 import xml.etree.ElementTree as xml
 import zipfile
+from typing import List, Dict
 from . import sloth_log
 
 
@@ -16,7 +17,7 @@ class SlothConnector:
     xml_data = None
     to_dir = None
 
-    def __init__(self, session_id="", snapshot_id="", to_dir=None):
+    def __init__(self, session_id: str = "", snapshot_id: str = "", to_dir: str = None):
 
         self.to_dir = to_dir
 
@@ -44,20 +45,20 @@ class SlothConnector:
         session_name = xml.SubElement(self.xml_data, "session_id")
         session_name.text = self.session_id
 
-    def dump_data(self, data_watch_dump=None):
+    def dump_data(self, data_watch_dump: List = None) -> str:
 
         if data_watch_dump is None:
             sloth_log.error("couldn't dump the data. watch data was not provided!")
-            return None
+            return ""
 
-        functions = xml.Element("functions_list")
+        functions_xml = xml.Element("functions_list")
 
         n = 0
         for func_watch in data_watch_dump:
             n += 1
-            self.dump_function(functions, func_watch['function'], func_watch['arguments'], func_watch['results'], n)
+            self.dump_function(functions_xml, func_watch['function'], func_watch['arguments'], func_watch['results'], n)
 
-        self.xml_data.append(functions)
+        self.xml_data.append(functions_xml)
 
         tree = xml.ElementTree(self.xml_data)
 
@@ -74,7 +75,8 @@ class SlothConnector:
 
         return zip_fn
 
-    def dump_function(self, functions_element=None, function_dict=None, args_dicts=None, res_dicts=None, n=0):
+    def dump_function(self, functions_element=None,
+                      function_dict: Dict = None, args_dicts: List = None, res_dicts: List = None, n: int = 0):
 
         function_element = xml.SubElement(functions_element, "function")
 

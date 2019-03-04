@@ -1,11 +1,11 @@
 import os
 import xml.etree.ElementTree as xml
 import zipfile
+from typing import List, Dict
 from . import sloth_log
 
 
 class SlothConnector:
-
     sloth_service = None
     instance_id = ""
     snapshot_id = ""
@@ -16,7 +16,7 @@ class SlothConnector:
     xml_data = None
     to_dir = None
 
-    def __init__(self, session_id="", snapshot_id="", to_dir=None):
+    def __init__(self, session_id: str = "", snapshot_id: str = "", to_dir: str = None):
 
         self.to_dir = to_dir
 
@@ -44,37 +44,38 @@ class SlothConnector:
         session_name = xml.SubElement(self.xml_data, "session_id")
         session_name.text = self.session_id
 
-    def dump_data(self, data_watch_dump=None):
+    def dump_data(self, data_watch_dump: List = None) -> str:
 
         if data_watch_dump is None:
             sloth_log.error("couldn't dump the data. watch data was not provided!")
-            return None
+            return ""
 
-        functions = xml.Element("functions_list")
+        functions_xml = xml.Element("functions_list")
 
         n = 0
         for func_watch in data_watch_dump:
             n += 1
-            self.dump_function(functions, func_watch['function'], func_watch['arguments'], func_watch['results'], n)
+            self.dump_function(functions_xml, func_watch['function'], func_watch['arguments'], func_watch['results'], n)
 
-        self.xml_data.append(functions)
+        self.xml_data.append(functions_xml)
 
         tree = xml.ElementTree(self.xml_data)
 
         with open(self.xml_filename, "wb") as fh:
             tree.write(fh)
 
-        zip_fn = self.xml_filename[:-4]+'.zip'
+        zip_fn = self.xml_filename[:-4] + '.zip'
         with zipfile.ZipFile(zip_fn, 'w', compression=zipfile.ZIP_DEFLATED) as myzip:
             myzip.write(self.xml_filename, arcname=os.path.basename(self.xml_filename))
 
-        sloth_log.info('zip pack created: '+zip_fn)
+        sloth_log.info('zip pack created: ' + zip_fn)
 
         os.remove(self.xml_filename)
 
         return zip_fn
 
-    def dump_function(self, functions_element=None, function_dict=None, args_dicts=None, res_dicts=None, n=0):
+    def dump_function(self, functions_element=None,
+                      function_dict: Dict = None, args_dicts: List = None, res_dicts: List = None, n: int = 0):
 
         function_element = xml.SubElement(functions_element, "function")
 
@@ -93,12 +94,14 @@ class SlothConnector:
         function_name = xml.SubElement(function_element, "function_name")
         function_name.text = function_dict['function_name']
 
+        run_time = xml.SubElement(function_element, "run_time")
+        run_time.text = function_dict['run_time']
+
         call_stack = xml.SubElement(function_element, "call_stack")
         call_stack.text = function_dict['call_stack']
 
         args_xml = xml.SubElement(function_element, "arguments_list")
         for arg_dict in args_dicts:
-
             arg_xml = xml.SubElement(args_xml, "argument")
 
             par_type = xml.SubElement(arg_xml, "par_type")
@@ -121,7 +124,6 @@ class SlothConnector:
 
         reslts_xml = xml.SubElement(function_element, "results_list")
         for res_dict in res_dicts:
-
             reslt_xml = xml.SubElement(reslts_xml, "result")
 
             par_type = xml.SubElement(reslt_xml, "par_type")
@@ -141,4 +143,3 @@ class SlothConnector:
 
             additional_info = xml.SubElement(reslt_xml, "additional_info")
             additional_info.text = res_dict['additional_info']
-

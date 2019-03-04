@@ -4,6 +4,8 @@ import codecs
 import argparse
 import os
 import zipfile
+from typing import Dict, List
+
 # it can be either called via the CLI as a standalone, or as a class
 try:
     from .sloth_config import SlothConfig
@@ -12,6 +14,7 @@ except:
     from sloth_config import SlothConfig
     from sloth_log import sloth_log
 
+RUN_TIME_INCREASE_RATE = 3
 
 class SlothTestConverter:
 
@@ -45,7 +48,7 @@ class SlothTestConverter:
 
         return ret
 
-    def create_text_of_test_module(self, func_data_dict=None):
+    def create_text_of_test_module(self, func_data_dict: Dict = None) -> (str, str):
         """
         Creating python code for test module, based on incoming dictionary with the description of the function and params
 
@@ -86,13 +89,14 @@ class SlothTestConverter:
 
         if not func_data_dict:
             sloth_log.error("Couldn't convert the pack. Data dict was not provided!")
-            return func_text
+            return func_text, var_text
 
         run_id = func_data_dict.get('run_id', "")
         scope = func_data_dict.get('scope', "")
         classname = func_data_dict.get('class_name', "")
         class_dump = func_data_dict.get('class_dump', "")
         fnname = func_data_dict.get('func_name', "")
+        run_time = int(func_data_dict.get('run_time', 0))
         target_values_raw = func_data_dict.get('in', [])
         target_result_raw = func_data_dict.get('out', [])
 
@@ -135,7 +139,16 @@ class SlothTestConverter:
         func_text += "\n    try:\n"
 
         if classname == "":
+
+            if run_time > 0:
+                func_text += '        start_time = datetime.datetime.now()\n'
+
             func_text += '        run_result = ' + fnname + "(" + par_str + ") \n"
+
+            if run_time > 0:
+                func_text += '        stop_time = datetime.datetime.now()\n'
+                func_text += '        run_time = (stop_time - start_time).microseconds\n'
+
         else:
             parval = "%r" % class_dump
             var_text += 'class_stream = io.BytesIO()\n'
@@ -145,9 +158,17 @@ class SlothTestConverter:
             v_classname = 'cls_' + t_func_name + '_' + classname
             var_text += v_classname + ' = joblib.load(class_stream)\n\n'
 
+            if run_time > 0:
+                func_text += '        start_time = datetime.datetime.now()\n'
+
             func_text += '        run_result = sl.' + v_classname + "." + fnname + "(" + par_str + ") \n"
 
+            if run_time > 0:
+                func_text += '        stop_time = datetime.datetime.now()\n'
+                func_text += '        run_time = (stop_time - start_time).microseconds\n'
+
         func_text += '    except Exception as e:\n'
+        func_text += '        run_time = 0\n'
         func_text += '        run_result = e\n\n'
 
         # result
@@ -182,7 +203,7 @@ class SlothTestConverter:
 
         elif len(target_result) == 1:
 
-            func_text += "    test_result = " + t_res + " \n"
+            func_text += f"    test_result = {t_res} \n"
 
             var_type = target_result[0]['par_type']
 
@@ -195,7 +216,7 @@ class SlothTestConverter:
 
         else:
 
-            func_text += "    test_result = (" + t_res + ") \n"
+            func_text += f"    test_result = ({t_res}) \n"
 
             for i in range(len(target_result)):
 
@@ -208,9 +229,13 @@ class SlothTestConverter:
                 func_text += "    assert(type(run_result["+str(i)+"]) == type(test_result["+str(i)+"]))\n"
                 func_text += "    assert(run_result["+str(i)+"]." + eq_expr + "(test_result["+str(i)+"]))\n"
 
+        if run_time > 0:
+            max__run_time = run_time * RUN_TIME_INCREASE_RATE
+            func_text += f"    assert(run_time <= {max__run_time})\n"
+
         return func_text, var_text
 
-    def get_dumped_parameters(self, par_val_arr=None):
+    def get_dumped_parameters(self, par_val_arr: List = None) -> List:
         """
 
         Collecting and parsing an array of income/outcome parameters to dict
@@ -239,7 +264,7 @@ class SlothTestConverter:
 
         return params
 
-    def parse_file_create_tests(self, filename=None, to_dir=None):
+    def parse_file_create_tests(self, filename: str = None, to_dir: str = None):
         """
         The Main function. Get an XML file (zip) of dumped functions and converts it to python unit-test code
 
@@ -278,10 +303,11 @@ class SlothTestConverter:
         func_dict = self._parseXMLtodict(root)
 
         target_test_file = 'import sloth_test_parval_'+packname+' as sl \n\n'
+        target_test_file += "import datetime\n\n"
 
         target_variable_file = "import codecs\n"
         target_variable_file += "import io\n"
-        target_variable_file += "import joblib\n\n"
+        target_variable_file += "import joblib\n"
 
         for func_element in func_dict['functions_list'][self.xml_list_tag]:
 
@@ -290,6 +316,7 @@ class SlothTestConverter:
             f_class_name = func_element['class_name'].get(self.xml_content_tag, "")
             f_class_dump = func_element['class_dump'].get(self.xml_content_tag, "")
             f_name = func_element['function_name'].get(self.xml_content_tag, "")
+            run_time = func_element['run_time'].get(self.xml_content_tag, "")
 
             f_in = []
             for arg_element in func_element['arguments_list'][self.xml_list_tag]:
@@ -318,6 +345,7 @@ class SlothTestConverter:
                 'class_name': f_class_name,
                 'class_dump': f_class_dump,
                 'func_name': f_name,
+                'run_time': run_time,
                 'run_id': f_run_id,
                 'in': f_in,
                 'out': f_out

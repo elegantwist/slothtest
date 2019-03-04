@@ -6,16 +6,17 @@ import codecs
 import joblib
 import io
 import asyncio
+from typing import List, Dict
 from . import SlothConnector, sloth_log
 from . import SlothConfig
 
 
 class SlothWatcher:
-
     sloth_state = None
 
     instance_id = ""
     snapshot_id = ""
+    session_id = ""
 
     service_online = False
     sloth_connector = None
@@ -30,7 +31,7 @@ class SlothWatcher:
 
         self.instance_id = str(os.environ.get('SLOTH_INSTANCE_ID', ""))
 
-    def start(self, to_dir=None):
+    def start(self, to_dir: str = None):
 
         self.to_dir = to_dir
 
@@ -68,13 +69,19 @@ class SlothWatcher:
 
         self.dump_counter = 0
 
-    async def watch(self, fn, in_args, in_kwargs, res, additional_info=""):
+    async def watch(self, fn, in_args: List = None, in_kwargs: Dict = None, res=None, additional_info: str = "",
+                    start_time: datetime = None, stop_time: datetime = None):
 
         sloth_log.debug("Start watching: " + str(fn))
 
+        if start_time and stop_time:
+            run_time = (stop_time - start_time).microseconds
+        else:
+            run_time = 0
+
         try:
 
-            func_dict = await self.watch_function(fn, in_args)
+            func_dict = await self.watch_function(fn, in_args, run_time)
 
             args_dict = await self.watch_function_args(fn, in_args, in_kwargs)
 
@@ -96,12 +103,12 @@ class SlothWatcher:
 
             sloth_log.error("Data was not dumped. Error: " + str(e))
 
-    async def watch_function(self, fn, in_args):
+    async def watch_function(self, fn, in_args: List = None, run_time: int = 0) -> Dict:
 
         def get_full_scope(fn):
             # build a full path to the method
 
-            def unique_path(shorter_dir=None, longer_dir=None):
+            def unique_path(shorter_dir: List = None, longer_dir: List = None) -> List:
 
                 sep = 0
                 for i in range(len(longer_dir)):
@@ -112,7 +119,7 @@ class SlothWatcher:
                         sep = i
                         break
 
-                return longer_dir[-(len(longer_dir)-sep):]
+                return longer_dir[-(len(longer_dir) - sep):]
 
             this_dir = os.getcwd()
             remote_dir = os.path.normpath(inspect.getfile(fn)[:-3])
@@ -124,7 +131,7 @@ class SlothWatcher:
 
             return '.'.join(diff_dir)
 
-        def get_callers_stack(fn):
+        def get_callers_stack(fn) -> str:
             # get a human-readable stack of callers for the method
 
             stack = inspect.stack()
@@ -166,12 +173,13 @@ class SlothWatcher:
             'class_name': classname,
             'class_dump': class_dump,
             'function_name': fn_name,
+            'run_time': str(run_time),
             'call_stack': get_callers_stack(fn)
         }
 
         return dict_comm
 
-    async def watch_function_args(self, fn=None, in_args=None, in_kwargs=None):
+    async def watch_function_args(self, fn=None, in_args: List = None, in_kwargs: Dict = None) -> List:
         # bound income real arguments with the all possible arguments of the method
         # and serialize this kwargs list
 
@@ -202,7 +210,7 @@ class SlothWatcher:
 
         return var_pack
 
-    async def watch_function_result(self, res=None, additional_info=""):
+    async def watch_function_result(self, res=None, additional_info: str = "") -> List:
         # watch and save the result of the method
 
         var_pack = []
@@ -248,7 +256,7 @@ class SlothWatcher:
 
         return var_pack
 
-    def dump_class_with_joblib(self, value):
+    def dump_class_with_joblib(self, value) -> str:
 
         outputStream = io.BytesIO()
         joblib.dump(value, outputStream)

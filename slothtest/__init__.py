@@ -1,6 +1,7 @@
 import traceback
 import os
 import asyncio
+import datetime
 from copy import deepcopy
 from .sloth_log import sloth_log
 from .sloth_connector import SlothConnector
@@ -38,6 +39,8 @@ def watchme():
             in_args = deepcopy(args)
             in_kwargs = deepcopy(kwargs)
 
+            start_time = datetime.datetime.now()
+
             try:
                 res = fn(*args, **kwargs)
                 additional_info = ""
@@ -45,12 +48,12 @@ def watchme():
                 res = e
                 additional_info = traceback.format_exc()
 
-            # fire and forget
-            asyncio.ensure_future(slothwatcher.watch(fn, in_args, in_kwargs, res, additional_info))
+            stop_time = datetime.datetime.now()
+
+            asyncio.run(slothwatcher.watch(fn, in_args, in_kwargs, res, additional_info, start_time, stop_time))
 
             return res
 
         return save_vars
 
     return subst_function
-

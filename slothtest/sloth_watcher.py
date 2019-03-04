@@ -12,7 +12,6 @@ from . import SlothConfig
 
 
 class SlothWatcher:
-
     sloth_state = None
 
     instance_id = ""
@@ -70,13 +69,19 @@ class SlothWatcher:
 
         self.dump_counter = 0
 
-    async def watch(self, fn, in_args: List = None, in_kwargs: Dict = None, res=None, additional_info: str = ""):
+    async def watch(self, fn, in_args: List = None, in_kwargs: Dict = None, res=None, additional_info: str = "",
+                    start_time: datetime = None, stop_time: datetime = None):
 
         sloth_log.debug("Start watching: " + str(fn))
 
+        if start_time and stop_time:
+            run_time = (stop_time - start_time).microseconds
+        else:
+            run_time = 0
+
         try:
 
-            func_dict = await self.watch_function(fn, in_args)
+            func_dict = await self.watch_function(fn, in_args, run_time)
 
             args_dict = await self.watch_function_args(fn, in_args, in_kwargs)
 
@@ -98,7 +103,7 @@ class SlothWatcher:
 
             sloth_log.error("Data was not dumped. Error: " + str(e))
 
-    async def watch_function(self, fn, in_args: List = None) -> Dict:
+    async def watch_function(self, fn, in_args: List = None, run_time: int = 0) -> Dict:
 
         def get_full_scope(fn):
             # build a full path to the method
@@ -114,7 +119,7 @@ class SlothWatcher:
                         sep = i
                         break
 
-                return longer_dir[-(len(longer_dir)-sep):]
+                return longer_dir[-(len(longer_dir) - sep):]
 
             this_dir = os.getcwd()
             remote_dir = os.path.normpath(inspect.getfile(fn)[:-3])
@@ -168,6 +173,7 @@ class SlothWatcher:
             'class_name': classname,
             'class_dump': class_dump,
             'function_name': fn_name,
+            'run_time': str(run_time),
             'call_stack': get_callers_stack(fn)
         }
 
@@ -259,7 +265,7 @@ class SlothWatcher:
 
         return d_val
 
-    def var_d_pack(self, **kwargs: Dict) -> Dict:
+    def var_d_pack(self, **kwargs):
 
         return {
             'par_type': kwargs.get('par_type', ""),

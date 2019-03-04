@@ -6,7 +6,6 @@ from . import sloth_log
 
 
 class SlothConnector:
-
     sloth_service = None
     instance_id = ""
     snapshot_id = ""
@@ -65,11 +64,11 @@ class SlothConnector:
         with open(self.xml_filename, "wb") as fh:
             tree.write(fh)
 
-        zip_fn = self.xml_filename[:-4]+'.zip'
+        zip_fn = self.xml_filename[:-4] + '.zip'
         with zipfile.ZipFile(zip_fn, 'w', compression=zipfile.ZIP_DEFLATED) as myzip:
             myzip.write(self.xml_filename, arcname=os.path.basename(self.xml_filename))
 
-        sloth_log.info('zip pack created: '+zip_fn)
+        sloth_log.info('zip pack created: ' + zip_fn)
 
         os.remove(self.xml_filename)
 
@@ -95,12 +94,14 @@ class SlothConnector:
         function_name = xml.SubElement(function_element, "function_name")
         function_name.text = function_dict['function_name']
 
+        run_time = xml.SubElement(function_element, "run_time")
+        run_time.text = function_dict['run_time']
+
         call_stack = xml.SubElement(function_element, "call_stack")
         call_stack.text = function_dict['call_stack']
 
         args_xml = xml.SubElement(function_element, "arguments_list")
         for arg_dict in args_dicts:
-
             arg_xml = xml.SubElement(args_xml, "argument")
 
             par_type = xml.SubElement(arg_xml, "par_type")
@@ -123,7 +124,6 @@ class SlothConnector:
 
         reslts_xml = xml.SubElement(function_element, "results_list")
         for res_dict in res_dicts:
-
             reslt_xml = xml.SubElement(reslts_xml, "result")
 
             par_type = xml.SubElement(reslt_xml, "par_type")
@@ -143,4 +143,3 @@ class SlothConnector:
 
             additional_info = xml.SubElement(reslt_xml, "additional_info")
             additional_info.text = res_dict['additional_info']
-

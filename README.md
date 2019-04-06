@@ -2,13 +2,13 @@
 
 # Description
 
-Sloth Test is a Python library that automatically create unit tests based on previous real-life cases to prevent regression bugs.
-1. You will connect the Sloth Test library to your project and run the project for execution the typical routine. 
+Sloth Test is a Python library that automatically creates unit tests based on previous real-life cases to prevent regression bugs.
+1. You will connect the Sloth Test library to your project and run the project for execution of the typical routine. 
 2. The Sloth collect the internal states of the classes, methods and functions you use in your project and you pointed the Sloth to watch at. It will record all possible incomes and outcomes of each method for each run
 3. After it collects enough data, the library dumps the collected data to a file
 4. For each recorded run in this file, Sloth Test will automatically create a particular unit test, with the particular state of the class, the particular recorded serialized incomes and an assertion of outcomes for this method.
-The result is a collection of typical pytest unit tests that can be executed as a part of testing routine.  
-5. For each modification of this method you can run these created test cases to check if the method doesn’t get new bugs and implements the business logic it supposed to have.
+The result is a collection of typical pytest unit tests that can be executed as a part of the testing routine.  
+5. For each modification of this method you can run these created test cases to check if the method doesn’t get new bugs and implements the business logic is supposed to have.
 ------------------------------------------------------------------
 
 # Installing
@@ -33,7 +33,7 @@ def do_useful_stuff(pd_table=None, a=0, b=0):
     return pd_table
 ```
 
-Let’s show some run examples that we will implement via other method as the part of our ETL process:
+Let’s show some run examples that we will implement via another method as the part of our ETL process:
 
 ```python
 def run():
@@ -90,9 +90,9 @@ Table table4:
 1     23
 ```
 
-Ok. Next, we need to be sure that this method will implement the business logic it supposed to implement. To do that, we need to write manually a bunch of pytests for this method for various incomes and outcomes (perhaps 100+ tests for different variants of tables). Or use a Sloth Test library to do it for us automatically.
+Ok. Next, we need to be sure that this method will implement the business logic is supposed to implement. To do that, we need to write manually a bunch of pytests for this method for various incomes and outcomes (perhaps 100+ tests for different variants of tables). Or use a Sloth Test library to do it for us automatically.
 
-1. The first step - we need to import a @watchme() decorator from a slothtest library. This decorator should be used on the target method need the Sloth to watch at. Let’s add it to our function:
+1. The first step - we need to import a @watchme() decorator from a slothtest library. This decorator should be used on the target method need the Sloth to watch. Let’s add it to our function:
 
 ```python
 from slothtest import watchme
@@ -117,8 +117,8 @@ if __name__ == '__main__':
 
 .. and that’s all!
 
-3. Now, let’s run our app as usual, and let the Sloth to watch our process run. After a run, in a folder with our example, a new zip-file appears with a filename in digits (it’s a timestamp) and a dump of our runs inside this zip file
-The zip-dump creates after a sloth is stopped, or it recorded a certain amount of runs for all the methods it watched. An amount of runs we can set via SlothConfig class
+3. Now, let’s run our app as usual, and let the Sloth watch our process run. After a run, in a folder with our example, a new zip-file appears with a filename in digits (it’s a timestamp) and a dump of our runs inside this zip file
+The zip-dump creates after a sloth is stopped, or it recorded a certain amount of runs for all the methods it watched. A number of runs we can set via SlothConfig class
 
 ```python
 from slothtest import SlothConfig
@@ -219,4 +219,4 @@ test_sloth_1549134821.py ....                                                   
 
 And that’s all. Easy! 
 
-This approach to generate unit tests automatically can be extrapolated for as many cases as you need if your methods and classes are serializable and if you have enough space for data dumps
+This approach to generating unit tests automatically can be extrapolated for as many cases as you need if your methods and classes are serializable and if you have enough space for data dumps
